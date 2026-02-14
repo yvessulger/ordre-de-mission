@@ -6,6 +6,8 @@
     <title>Ordre de Mission - Compagnie Moncor</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-image@0.4.0/leaflet-image.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* ===== RESET & BASE ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -754,9 +756,58 @@
         .popup-btn-save { background: #2d8a2c; color: white; }
         .popup-btn-delete { background: #c41e3a; color: white; }
 
-        /* Print map */
+        /* Print map - page imprimee */
+        .print-map-page {
+            display: none;
+        }
+
         @media print {
             .map-view { display: none !important; }
+
+            .print-map-page {
+                display: block !important;
+                page-break-before: always;
+                width: 196mm;
+                height: 283mm;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .print-map-page .print-header {
+                display: flex !important;
+            }
+
+            .print-map-page .map-print-container {
+                border: 2px solid #333;
+                height: 240mm;
+                margin-top: 4px;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .print-map-page .map-print-container img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .print-map-legend {
+                margin-top: 3px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px 12px;
+                font-size: 7px;
+            }
+
+            .print-map-legend .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 3px;
+            }
+
+            .print-map-legend .legend-icon {
+                font-size: 10px;
+            }
         }
 
         /* ===== RESPONSIVE ===== */
@@ -785,7 +836,7 @@
     <div class="app-actions">
         <button class="btn btn-outline" onclick="resetForm()">Nouveau</button>
         <button class="btn btn-green" onclick="toggleMapView()">Plan du secteur</button>
-        <button class="btn btn-dark" onclick="window.print()">Imprimer / PDF</button>
+        <button class="btn btn-dark" onclick="prepareAndPrint()">Imprimer / PDF</button>
         <button class="btn btn-white" onclick="openShareModal()">Envoyer</button>
     </div>
 </div>
@@ -976,6 +1027,26 @@
             <button class="btn btn-white" onclick="toggleMapView()" style="font-size:11px; padding:6px 14px;">Retour au formulaire</button>
         </div>
     </div>
+</div>
+
+<!-- ===== PRINT MAP PAGE (visible only in print) ===== -->
+<div class="print-map-page" id="print-map-page">
+    <div class="print-header">
+        <div class="print-header-left">
+            <img src="logo-moncor.png" alt="Logo">
+            <h1>Plan du secteur<br><span style="font-size:9px; font-weight:400; color:#555;">Compagnie Moncor &mdash; Bataillon Sarine</span></h1>
+        </div>
+        <div class="print-header-right">
+            <div class="mission-num" id="print-map-num"></div>
+            <div id="print-map-date"></div>
+            <div id="print-map-lieu"></div>
+        </div>
+    </div>
+    <div class="map-print-container" id="map-print-container">
+        <img id="map-print-img" src="" alt="Plan du secteur">
+    </div>
+    <div class="print-map-legend" id="print-map-legend"></div>
+    <div class="print-footer">Compagnie Moncor &mdash; Bataillon Sarine &mdash; Document g&eacute;n&eacute;r&eacute; automatiquement</div>
 </div>
 
 <!-- ===== SHARE MODAL ===== -->
@@ -1241,6 +1312,7 @@
         depot_mat:     { tab: 'sp', icon: '📦', color: '#8B4513', label: 'D\u00e9p\u00f4t mat\u00e9riel', svg: null },
 
         // === SIGNALISATION ROUTIERE ===
+        parking_route: { tab: 'route', icon: '🅿️', color: '#2c5f8a', label: 'Parking', svg: 'P' },
         sens_interdit: { tab: 'route', icon: '⛔', color: '#c41e3a', label: 'Sens interdit', svg: null },
         deviation:     { tab: 'route', icon: '↪️', color: '#e6b800', label: 'D\u00e9viation', svg: null },
         route_barree:  { tab: 'route', icon: '🚧', color: '#c41e3a', label: 'Route barr\u00e9e', svg: null },
@@ -1493,6 +1565,134 @@
                 }, 100);
             }
         }
+    }
+
+    // ===== IMPRESSION AVEC CARTE =====
+    function prepareAndPrint() {
+        const hasMarkers = mapMarkers.some(m => m !== null);
+
+        if (!hasMarkers || !map) {
+            // Pas de marqueurs ou carte jamais ouverte : imprimer sans plan
+            document.getElementById('print-map-page').style.display = 'none';
+            window.print();
+            return;
+        }
+
+        showToast('Capture du plan en cours...');
+        // Fermer les popups avant capture
+        map.closePopup();
+
+        // S'assurer que la map-view est visible pour la capture
+        const mapView = document.getElementById('map-view');
+        const wasHidden = !mapView.classList.contains('active');
+        if (wasHidden) {
+            mapView.style.position = 'fixed';
+            mapView.style.left = '-9999px';
+            mapView.style.display = 'flex';
+            map.invalidateSize();
+        }
+
+        // Petit delai pour que les tuiles se chargent
+        setTimeout(function() {
+            captureMap(function(imgData) {
+                if (wasHidden) {
+                    mapView.style.display = '';
+                    mapView.style.left = '';
+                    mapView.style.position = '';
+                }
+
+                if (imgData) {
+                    document.getElementById('map-print-img').src = imgData;
+                    fillPrintMapInfo();
+                    buildPrintLegend();
+                    document.getElementById('print-map-page').style.display = '';
+                } else {
+                    document.getElementById('print-map-page').style.display = 'none';
+                }
+
+                setTimeout(function() { window.print(); }, 300);
+            });
+        }, wasHidden ? 800 : 100);
+    }
+
+    function captureMap(callback) {
+        const mapContainer = document.getElementById('map');
+
+        // Methode 1: html2canvas (plus fiable avec les tuiles)
+        if (typeof html2canvas !== 'undefined') {
+            html2canvas(mapContainer, {
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#f0f0f0',
+                scale: 2
+            }).then(function(canvas) {
+                callback(canvas.toDataURL('image/png'));
+            }).catch(function(err) {
+                console.warn('html2canvas echoue:', err);
+                tryLeafletImage(callback);
+            });
+        } else {
+            tryLeafletImage(callback);
+        }
+    }
+
+    function tryLeafletImage(callback) {
+        // Methode 2: leaflet-image
+        if (typeof leafletImage !== 'undefined' && map) {
+            leafletImage(map, function(err, canvas) {
+                if (err || !canvas) {
+                    console.warn('leaflet-image echoue:', err);
+                    callback(null);
+                    return;
+                }
+                callback(canvas.toDataURL('image/png'));
+            });
+        } else {
+            callback(null);
+        }
+    }
+
+    function fillPrintMapInfo() {
+        const numOM = document.getElementById('num-om').value.trim();
+        const lieu = document.getElementById('lieu').value.trim();
+        const dateMission = document.getElementById('date-mission').value;
+        document.getElementById('print-map-num').textContent = numOM || '';
+        document.getElementById('print-map-lieu').textContent = lieu || '';
+        document.getElementById('print-map-date').textContent = dateMission
+            ? new Date(dateMission + 'T00:00').toLocaleDateString('fr-CH', {day:'numeric', month:'long', year:'numeric'})
+            : '';
+    }
+
+    function buildPrintLegend() {
+        const legendEl = document.getElementById('print-map-legend');
+        legendEl.innerHTML = '';
+
+        // Trouver les categories utilisees
+        const usedCats = new Set();
+        mapMarkers.forEach(m => {
+            if (m) usedCats.add(m._category);
+        });
+
+        usedCats.forEach(catKey => {
+            const cat = MARKER_CATEGORIES[catKey];
+            if (!cat) return;
+            const item = document.createElement('span');
+            item.className = 'legend-item';
+            item.innerHTML = `<span class="legend-icon">${cat.icon}</span> ${cat.label}`;
+
+            // Ajouter les notes des marqueurs de cette categorie
+            const notes = [];
+            mapMarkers.forEach(m => {
+                if (m && m._category === catKey && m._note) {
+                    notes.push(m._note);
+                }
+            });
+            if (notes.length) {
+                item.innerHTML += ` <span style="color:#666;">(${notes.join(', ')})</span>`;
+            }
+
+            legendEl.appendChild(item);
+        });
     }
 
     init();
