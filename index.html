@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordre de Mission - Compagnie Moncor</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            color: #1a1a1a;
+            background: #1a1a1a;
+            line-height: 1.4;
+        }
+
+        /* ===== APP LAYOUT ===== */
+        .app-header {
+            background: #c41e3a;
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .app-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .app-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .app-header h1 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .app-header h1 span {
+            font-weight: 300;
+            font-size: 12px;
+            display: block;
+            opacity: 0.8;
+        }
+
+        .app-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+
+        .btn-white { background: white; color: #c41e3a; }
+        .btn-dark { background: #2c2c2c; color: white; }
+        .btn-green { background: #2d8a2c; color: white; }
+        .btn-blue { background: #2c5f8a; color: white; }
+        .btn-outline { background: transparent; color: white; border: 1.5px solid rgba(255,255,255,0.5); }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); }
+
+        .app-body {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ===== FORM CARD ===== */
+        .card {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-header.red { background: #c41e3a; }
+        .card-header.dark { background: #2c2c2c; }
+        .card-header.blue { background: #2c5f8a; }
+        .card-header.green { background: #2d8a2c; }
+        .card-header.orange { background: #d4760a; }
+
+        .card-body { padding: 14px 16px; }
+
+        /* ===== FORM ELEMENTS ===== */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+        .form-row.full { grid-template-columns: 1fr; }
+
+        .form-group { display: flex; flex-direction: column; }
+
+        .form-group label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #888;
+            letter-spacing: 0.3px;
+            margin-bottom: 3px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            border: 1.5px solid #ddd;
+            border-radius: 4px;
+            padding: 7px 10px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: border-color 0.15s;
+            background: #fafafa;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #c41e3a;
+            background: white;
+        }
+
+        .form-group textarea { resize: vertical; min-height: 60px; }
+
+        /* ===== CHECKBOX / RADIO GROUPS ===== */
+        .option-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 4px 0;
+        }
+
+        .option-item {
+            position: relative;
+        }
+
+        .option-item input[type="checkbox"],
+        .option-item input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .option-item label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            background: #fafafa;
+            user-select: none;
+            text-transform: none;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .option-item label .sub {
+            font-size: 9px;
+            color: #999;
+            font-weight: 400;
+        }
+
+        .option-item input:checked + label {
+            border-color: #c41e3a;
+            background: #fef0f2;
+            color: #c41e3a;
+            font-weight: 600;
+        }
+
+        .option-item input[name="tenue"]:checked + label {
+            border-color: #2c2c2c;
+            background: #f0f0f0;
+            color: #1a1a1a;
+        }
+
+        .option-item input[name^="vhc"]:checked + label {
+            border-color: #2c5f8a;
+            background: #eef4f9;
+            color: #2c5f8a;
+        }
+
+        /* ===== RADIO CHANNEL ===== */
+        .radio-channel-input {
+            background: #1a1a1a !important;
+            color: #ffcc02 !important;
+            font-family: 'Courier New', monospace !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            text-align: center;
+            width: 80px;
+            border-color: #333 !important;
+        }
+
+        .radio-channel-input:focus {
+            border-color: #ffcc02 !important;
+        }
+
+        /* ===== EFFECTIF TABLE ===== */
+        .effectif-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .effectif-table th {
+            background: #f0f0f0;
+            padding: 6px 8px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 10px;
+            text-transform: uppercase;
+            border: 1px solid #ddd;
+        }
+
+        .effectif-table td {
+            border: 1px solid #ddd;
+            padding: 0;
+        }
+
+        .effectif-table td input {
+            width: 100%;
+            border: none;
+            padding: 5px 8px;
+            font-size: 12px;
+            font-family: inherit;
+            background: transparent;
+        }
+
+        .effectif-table td input:focus {
+            outline: none;
+            background: #fff8e1;
+        }
+
+        .effectif-table tr:nth-child(even) td {
+            background: #fafafa;
+        }
+
+        .effectif-table .row-num {
+            text-align: center;
+            color: #ccc;
+            font-size: 10px;
+            width: 30px;
+            padding: 5px;
+        }
+
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #2d8a2c;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 200;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ===== SHARE MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 480px;
+            max-width: 90vw;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 { font-size: 16px; }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+            padding: 4px;
+        }
+
+        .modal-body { padding: 20px; }
+
+        .modal-body .preview-box {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 14px;
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-family: inherit;
+            margin-bottom: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .share-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .share-btn {
+            padding: 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+        }
+
+        .share-btn:hover {
+            border-color: #c41e3a;
+            background: #fef0f2;
+        }
+
+        .share-btn .icon { font-size: 20px; display: block; margin-bottom: 4px; }
+        .share-btn .label { font-size: 11px; font-weight: 600; }
+
+        /* ===== PRINT STYLES ===== */
+        @page {
+            size: A4;
+            margin: 7mm;
+        }
+
+        @media print {
+            body { background: white; font-size: 9px; }
+            .app-header, .app-actions, .no-print, .toast, .modal-overlay { display: none !important; }
+            .app-body { max-width: none; margin: 0; padding: 0; }
+            .card { box-shadow: none; border-radius: 0; margin-bottom: 0; break-inside: avoid; }
+            .card-body { padding: 4px 0; }
+
+            .print-page {
+                width: 196mm;
+                height: 283mm;
+                padding: 0;
+                position: relative;
+                page-break-after: always;
+                overflow: hidden;
+            }
+
+            .print-header {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 2.5px solid #c41e3a;
+                padding-bottom: 5px;
+                margin-bottom: 6px;
+            }
+
+            .print-header-left {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .print-header img { width: 36px; height: 36px; }
+
+            .print-header h1 {
+                font-size: 13px;
+                font-weight: 800;
+                color: #c41e3a;
+                text-transform: uppercase;
+                line-height: 1.1;
+            }
+
+            .print-header h2 {
+                font-size: 9px;
+                font-weight: 400;
+                color: #555;
+            }
+
+            .print-header-right {
+                text-align: right;
+                font-size: 8px;
+                color: #555;
+            }
+
+            .print-header-right .mission-num {
+                font-size: 11px;
+                font-weight: 700;
+                color: #c41e3a;
+            }
+
+            .screen-only { display: none !important; }
+            .print-only { display: block !important; }
+
+            /* Print form values */
+            .card-header {
+                padding: 3px 8px;
+                font-size: 8px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .form-row { gap: 4px; margin-bottom: 4px; }
+
+            .form-group label { font-size: 6.5px; margin-bottom: 1px; }
+
+            .form-group input, .form-group select, .form-group textarea {
+                border: none;
+                border-bottom: 1px dotted #ccc;
+                border-radius: 0;
+                padding: 2px 4px;
+                font-size: 9px;
+                background: transparent;
+            }
+
+            .option-grid { gap: 3px; }
+
+            .option-item label {
+                padding: 2px 6px;
+                font-size: 8px;
+                border-width: 1px;
+            }
+
+            .option-item input:checked + label {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .effectif-table th { font-size: 7px; padding: 2px 4px; }
+            .effectif-table td input { font-size: 8px; padding: 2px 4px; }
+            .effectif-table .row-num { font-size: 7px; }
+
+            .notes-print textarea {
+                border: 1px solid #ddd;
+                font-size: 8px;
+                min-height: 40px;
+                padding: 3px;
+            }
+
+            .signature-area-print {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                margin-top: 6px;
+                padding-top: 4px;
+                border-top: 1px solid #ddd;
+            }
+
+            .sig-block { text-align: center; }
+            .sig-block .sig-label { font-size: 7px; text-transform: uppercase; color: #888; margin-bottom: 18px; display: block; }
+            .sig-block .sig-line { border-top: 1px solid #333; padding-top: 2px; font-size: 7.5px; color: #555; }
+
+            .print-footer {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                text-align: center;
+                font-size: 6px;
+                color: #bbb;
+                border-top: 1px solid #eee;
+                padding-top: 2px;
+            }
+
+            /* Map page */
+            .map-container-print {
+                border: 2px solid #333;
+                height: 218mm;
+            }
+
+            .map-container-print iframe { width: 100%; height: 100%; border: none; }
+        }
+
+        .print-only { display: none; }
+
+        /* ===== MAP VIEW ===== */
+        .map-view {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 50;
+            background: #1a1a1a;
+            flex-direction: column;
+        }
+
+        .map-view.active { display: flex; }
+
+        .map-toolbar {
+            background: #2c2c2c;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #c41e3a;
+            z-index: 60;
+        }
+
+        .map-toolbar-title {
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            margin-right: 12px;
+            white-space: nowrap;
+        }
+
+        .marker-btn {
+            padding: 5px 10px;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s;
+            color: white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .marker-btn:hover { background: rgba(255,255,255,0.2); }
+
+        .marker-btn.selected {
+            border-color: white;
+            background: rgba(255,255,255,0.25);
+        }
+
+        .marker-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.5);
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .map-toolbar .separator {
+            width: 1px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            margin: 0 4px;
+        }
+
+        #map {
+            flex: 1;
+            z-index: 55;
+        }
+
+        .map-bottom-bar {
+            background: #2c2c2c;
+            padding: 6px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 60;
+        }
+
+        .map-bottom-bar .hint {
+            color: #999;
+            font-size: 11px;
+        }
+
+        /* Leaflet popup custom */
+        .marker-popup-content {
+            min-width: 180px;
+        }
+
+        .marker-popup-content .popup-cat {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .marker-popup-content input {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 4px 6px;
+            font-size: 12px;
+            font-family: inherit;
+            margin-bottom: 6px;
+        }
+
+        .marker-popup-content .popup-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .marker-popup-content .popup-btn {
+            padding: 3px 8px;
+            border: none;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .popup-btn-save { background: #2d8a2c; color: white; }
+        .popup-btn-delete { background: #c41e3a; color: white; }
+
+        /* Print map */
+        @media print {
+            .map-view { display: none !important; }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .form-row, .form-row.three { grid-template-columns: 1fr; }
+            .app-header { padding: 10px 14px; }
+            .app-body { padding: 12px; }
+            .share-methods { grid-template-columns: 1fr; }
+            .map-toolbar { padding: 6px 10px; gap: 4px; }
+            .marker-btn { font-size: 9px; padding: 4px 6px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== APP HEADER ===== -->
+<div class="app-header no-print">
+    <div class="app-header-left">
+        <img src="logo-moncor.png" alt="Logo CP Moncor">
+        <h1>Ordre de Mission <span>Compagnie Moncor &mdash; Bataillon Sarine</span></h1>
+    </div>
+    <div class="app-actions">
+        <button class="btn btn-outline" onclick="resetForm()">Nouveau</button>
+        <button class="btn btn-green" onclick="toggleMapView()">Plan du secteur</button>
+        <button class="btn btn-dark" onclick="window.print()">Imprimer / PDF</button>
+        <button class="btn btn-white" onclick="openShareModal()">Envoyer</button>
+    </div>
+</div>
+
+<!-- ===== MAIN FORM ===== -->
+<div class="app-body">
+
+    <!-- TYPE DE MISSION -->
+    <div class="card">
+        <div class="card-header red">Type de mission</div>
+        <div class="card-body">
+            <div class="option-grid">
+                <div class="option-item"><input type="checkbox" id="m1" name="mission" value="Service de parking"><label for="m1">Service de parking</label></div>
+                <div class="option-item"><input type="checkbox" id="m2" name="mission" value="Securite incendie"><label for="m2">S&eacute;curit&eacute; incendie</label></div>
+                <div class="option-item"><input type="checkbox" id="m3" name="mission" value="Evacuation"><label for="m3">&Eacute;vacuation</label></div>
+                <div class="option-item"><input type="checkbox" id="m4" name="mission" value="Visite de caserne"><label for="m4">Visite de caserne</label></div>
+                <div class="option-item"><input type="checkbox" id="m5" name="mission" value="Demonstration diverse"><label for="m5">D&eacute;monstration diverse</label></div>
+            </div>
+            <div style="margin-top:8px;">
+                <div class="form-group">
+                    <label>Autre (pr&eacute;ciser)</label>
+                    <input type="text" id="mission-autre" placeholder="Ex: Cours de formation, Renfort cantonal...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INFORMATIONS GENERALES -->
+    <div class="card">
+        <div class="card-header dark">Informations g&eacute;n&eacute;rales</div>
+        <div class="card-body">
+            <div class="form-row three">
+                <div class="form-group">
+                    <label>Date de la mission</label>
+                    <input type="date" id="date-mission">
+                </div>
+                <div class="form-group">
+                    <label>Horaire d&eacute;but</label>
+                    <input type="time" id="heure-debut">
+                </div>
+                <div class="form-group">
+                    <label>Horaire fin</label>
+                    <input type="time" id="heure-fin">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Lieu / Secteur / &Eacute;tablissement</label>
+                    <input type="text" id="lieu" placeholder="Ex: Parking Centre Commercial, Ecole de Moncor...">
+                </div>
+                <div class="form-group">
+                    <label>Groupe de piquet</label>
+                    <input type="text" id="piquet" placeholder="Ex: Groupe 2, Section A...">
+                </div>
+            </div>
+            <div class="form-row three">
+                <div class="form-group">
+                    <label>Canal radio</label>
+                    <input type="text" class="radio-channel-input" id="canal-radio" placeholder="CH" maxlength="4">
+                </div>
+                <div class="form-group">
+                    <label>Responsable de la manifestation</label>
+                    <input type="text" id="resp-manif" placeholder="Nom et prenom">
+                </div>
+                <div class="form-group">
+                    <label>N&deg; t&eacute;l. urgence / contact</label>
+                    <input type="tel" id="tel-urgence" placeholder="079 XXX XX XX">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Sous-officier / Officier responsable</label>
+                    <input type="text" id="resp-equipe" placeholder="Nom, grade">
+                </div>
+                <div class="form-group">
+                    <label>N&deg; d'ordre de mission</label>
+                    <input type="text" id="num-om" placeholder="OM-001/2025">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TENUE -->
+    <div class="card">
+        <div class="card-header dark">Tenue</div>
+        <div class="card-body">
+            <div class="option-grid">
+                <div class="option-item"><input type="radio" id="t1" name="tenue" value="Tenue de travail"><label for="t1">Tenue de travail</label></div>
+                <div class="option-item"><input type="radio" id="t2" name="tenue" value="Tenue feu"><label for="t2">Tenue feu</label></div>
+                <div class="option-item"><input type="radio" id="t3" name="tenue" value="Tenue feu + gilet securite"><label for="t3">Tenue feu + gilet s&eacute;curit&eacute;</label></div>
+                <div class="option-item"><input type="radio" id="t4" name="tenue" value="Autre"><label for="t4">Autre</label></div>
+            </div>
+            <div id="tenue-autre-wrap" style="margin-top:8px; display:none;">
+                <div class="form-group">
+                    <label>Pr&eacute;ciser la tenue</label>
+                    <input type="text" id="tenue-autre" placeholder="Ex: Tenue de sortie...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VEHICULES -->
+    <div class="card">
+        <div class="card-header blue">V&eacute;hicules</div>
+        <div class="card-body">
+            <div class="option-grid">
+                <div class="option-item"><input type="checkbox" id="v1" name="vhc" value="Tonne-Pompe"><label for="v1">Tonne-Pompe <span class="sub">(C/C1-118)</span></label></div>
+                <div class="option-item"><input type="checkbox" id="v2" name="vhc" value="GIHS"><label for="v2">GIHS <span class="sub">(C/C1-118)</span></label></div>
+                <div class="option-item"><input type="checkbox" id="v3" name="vhc" value="VTM"><label for="v3">VTM <span class="sub">(C1)</span></label></div>
+                <div class="option-item"><input type="checkbox" id="v4" name="vhc" value="Transport"><label for="v4">Transport <span class="sub">(C1)</span></label></div>
+                <div class="option-item"><input type="checkbox" id="v5" name="vhc" value="Jeep"><label for="v5">Jeep <span class="sub">(B)</span></label></div>
+                <div class="option-item"><input type="checkbox" id="v6" name="vhc" value="Vhc CI"><label for="v6">Vhc CI <span class="sub">(B)</span></label></div>
+                <div class="option-item"><input type="checkbox" id="v7" name="vhc" value="PC-SAN"><label for="v7">PC-SAN <span class="sub">(B)</span></label></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EFFECTIF -->
+    <div class="card">
+        <div class="card-header red">Effectif engag&eacute;</div>
+        <div class="card-body" style="padding: 0;">
+            <table class="effectif-table">
+                <thead>
+                    <tr>
+                        <th style="width:30px;">N&deg;</th>
+                        <th style="width:28%;">Nom &amp; Pr&eacute;nom</th>
+                        <th style="width:20%;">Grade / Fonction</th>
+                        <th style="width:14%;">Section</th>
+                        <th>Remarques</th>
+                    </tr>
+                </thead>
+                <tbody id="effectif-body">
+                </tbody>
+            </table>
+            <div style="padding: 8px 16px; text-align:right;" class="no-print">
+                <button class="btn btn-dark" onclick="addEffectifRow()" style="font-size:11px; padding:5px 12px;">+ Ajouter une ligne</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTES / BRIEFING -->
+    <div class="card">
+        <div class="card-header orange">Notes / Consignes pour le briefing</div>
+        <div class="card-body">
+            <textarea id="notes" rows="5" style="width:100%; border:1.5px solid #ddd; border-radius:4px; padding:8px; font-size:13px; font-family:inherit; background:#fafafa;" placeholder="Objectif de la mission, consignes specifiques, points de rassemblement, procedures d'urgence, materiel complementaire..."></textarea>
+        </div>
+    </div>
+
+    <!-- SIGNATURES -->
+    <div class="card">
+        <div class="card-header dark">Signatures</div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>&Eacute;mis par (Commandant)</label>
+                    <input type="text" id="sig-commandant" placeholder="Nom, grade">
+                </div>
+                <div class="form-group">
+                    <label>Re&ccedil;u par (Sous-officier)</label>
+                    <input type="text" id="sig-sousofficier" placeholder="Nom, grade">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== MAP VIEW ===== -->
+<div class="map-view" id="map-view">
+    <div class="map-toolbar">
+        <span class="map-toolbar-title">Plan du secteur</span>
+        <div class="separator"></div>
+        <button class="marker-btn selected" data-cat="rassemblement" onclick="selectMarkerType(this)">
+            <span class="marker-dot" style="background:#2d8a2c;"></span> Rassemblement
+        </button>
+        <button class="marker-btn" data-cat="surveillance" onclick="selectMarkerType(this)">
+            <span class="marker-dot" style="background:#2c5f8a;"></span> Surveillance
+        </button>
+        <button class="marker-btn" data-cat="danger" onclick="selectMarkerType(this)">
+            <span class="marker-dot" style="background:#c41e3a;"></span> Danger
+        </button>
+        <button class="marker-btn" data-cat="acces" onclick="selectMarkerType(this)">
+            <span class="marker-dot" style="background:#7b2d8a;"></span> Acc&egrave;s urgence
+        </button>
+        <button class="marker-btn" data-cat="parking" onclick="selectMarkerType(this)">
+            <span class="marker-dot" style="background:#e6b800;"></span> Parking
+        </button>
+        <button class="marker-btn" data-cat="eau" onclick="selectMarkerType(this)">
+            <span class="marker-dot" style="background:#00a8cc;"></span> Point d'eau
+        </button>
+        <button class="marker-btn" data-cat="autre" onclick="selectMarkerType(this)">
+            <span class="marker-dot" style="background:#888;"></span> Autre
+        </button>
+        <div class="separator"></div>
+        <button class="btn btn-outline" onclick="clearAllMarkers()" style="font-size:10px; padding:5px 10px;">Tout effacer</button>
+    </div>
+    <div id="map"></div>
+    <div class="map-bottom-bar">
+        <span class="hint">Cliquer sur la carte pour poser un marqueur. Cliquer sur un marqueur pour le modifier ou le supprimer.</span>
+        <button class="btn btn-white" onclick="toggleMapView()" style="font-size:11px; padding:6px 14px;">Retour au formulaire</button>
+    </div>
+</div>
+
+<!-- ===== SHARE MODAL ===== -->
+<div class="modal-overlay" id="share-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Envoyer l'ordre de mission</h2>
+            <button class="modal-close" onclick="closeShareModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:12px; color:#666; margin-bottom:12px;">Aper&ccedil;u du message qui sera envoy&eacute; :</p>
+            <div class="preview-box" id="share-preview"></div>
+            <div class="share-methods">
+                <button class="share-btn" onclick="shareViaWhatsApp()">
+                    <span class="icon">&#128172;</span>
+                    <span class="label">WhatsApp</span>
+                </button>
+                <button class="share-btn" onclick="shareViaEmail()">
+                    <span class="icon">&#9993;</span>
+                    <span class="label">E-mail</span>
+                </button>
+                <button class="share-btn" onclick="shareViaSMS()">
+                    <span class="icon">&#128241;</span>
+                    <span class="label">SMS</span>
+                </button>
+                <button class="share-btn" onclick="copyToClipboard()">
+                    <span class="icon">&#128203;</span>
+                    <span class="label">Copier le texte</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<script>
+    // ===== INIT =====
+    const EFFECTIF_ROWS = 12;
+
+    function init() {
+        const tbody = document.getElementById('effectif-body');
+        for (let i = 1; i <= EFFECTIF_ROWS; i++) {
+            addEffectifRowToTable(tbody, i);
+        }
+
+        // Show/hide tenue autre
+        document.querySelectorAll('input[name="tenue"]').forEach(r => {
+            r.addEventListener('change', () => {
+                document.getElementById('tenue-autre-wrap').style.display =
+                    document.getElementById('t4').checked ? 'block' : 'none';
+            });
+        });
+    }
+
+    function addEffectifRowToTable(tbody, num) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="row-num">${num}</td>
+            <td><input type="text" data-field="nom" placeholder=""></td>
+            <td><input type="text" data-field="grade" placeholder=""></td>
+            <td><input type="text" data-field="section" placeholder=""></td>
+            <td><input type="text" data-field="remarque" placeholder=""></td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    function addEffectifRow() {
+        const tbody = document.getElementById('effectif-body');
+        const num = tbody.children.length + 1;
+        addEffectifRowToTable(tbody, num);
+    }
+
+    // ===== GENERATE MESSAGE =====
+    function generateMessage() {
+        // Missions
+        const missions = [];
+        document.querySelectorAll('input[name="mission"]:checked').forEach(cb => missions.push(cb.value));
+        const mAutre = document.getElementById('mission-autre').value.trim();
+        if (mAutre) missions.push(mAutre);
+
+        // Tenue
+        let tenue = '';
+        const tenueChecked = document.querySelector('input[name="tenue"]:checked');
+        if (tenueChecked) {
+            tenue = tenueChecked.value === 'Autre'
+                ? document.getElementById('tenue-autre').value.trim() || 'Autre'
+                : tenueChecked.value;
+        }
+
+        // Vehicules
+        const vehicules = [];
+        document.querySelectorAll('input[name="vhc"]:checked').forEach(cb => vehicules.push(cb.value));
+
+        // Effectif
+        const effectif = [];
+        document.querySelectorAll('#effectif-body tr').forEach(tr => {
+            const nom = tr.querySelector('[data-field="nom"]').value.trim();
+            const grade = tr.querySelector('[data-field="grade"]').value.trim();
+            if (nom) effectif.push(`  - ${nom}${grade ? ' (' + grade + ')' : ''}`);
+        });
+
+        const date = document.getElementById('date-mission').value;
+        const hDebut = document.getElementById('heure-debut').value;
+        const hFin = document.getElementById('heure-fin').value;
+        const lieu = document.getElementById('lieu').value.trim();
+        const canal = document.getElementById('canal-radio').value.trim();
+        const respManif = document.getElementById('resp-manif').value.trim();
+        const respEquipe = document.getElementById('resp-equipe').value.trim();
+        const telUrgence = document.getElementById('tel-urgence').value.trim();
+        const piquet = document.getElementById('piquet').value.trim();
+        const numOM = document.getElementById('num-om').value.trim();
+        const notes = document.getElementById('notes').value.trim();
+
+        const dateFormatted = date ? new Date(date + 'T00:00').toLocaleDateString('fr-CH', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) : '---';
+
+        let msg = `ORDRE DE MISSION - CP MONCOR\n`;
+        msg += `Bataillon Sarine\n`;
+        if (numOM) msg += `Ref: ${numOM}\n`;
+        msg += `${'='.repeat(35)}\n\n`;
+
+        msg += `MISSION: ${missions.length ? missions.join(', ') : '---'}\n`;
+        msg += `DATE: ${dateFormatted}\n`;
+        msg += `HORAIRE: ${hDebut || '--:--'} - ${hFin || '--:--'}\n`;
+        msg += `LIEU: ${lieu || '---'}\n`;
+        if (piquet) msg += `PIQUET: ${piquet}\n`;
+        if (canal) msg += `CANAL RADIO: ${canal}\n`;
+        if (telUrgence) msg += `TEL. URGENCE: ${telUrgence}\n`;
+        msg += `\n`;
+
+        if (tenue) msg += `TENUE: ${tenue}\n`;
+        if (vehicules.length) msg += `VEHICULES: ${vehicules.join(', ')}\n`;
+        msg += `\n`;
+
+        if (respManif) msg += `RESP. MANIFESTATION: ${respManif}\n`;
+        if (respEquipe) msg += `RESP. EQUIPE: ${respEquipe}\n`;
+        msg += `\n`;
+
+        if (effectif.length) {
+            msg += `EFFECTIF:\n${effectif.join('\n')}\n\n`;
+        }
+
+        if (notes) {
+            msg += `CONSIGNES:\n${notes}\n\n`;
+        }
+
+        msg += `${'='.repeat(35)}\n`;
+        msg += `CP Moncor - Ce message fait office d'ordre de mission.`;
+
+        return msg;
+    }
+
+    // ===== SHARE FUNCTIONS =====
+    function openShareModal() {
+        const msg = generateMessage();
+        document.getElementById('share-preview').textContent = msg;
+        document.getElementById('share-modal').classList.add('show');
+    }
+
+    function closeShareModal() {
+        document.getElementById('share-modal').classList.remove('show');
+    }
+
+    function shareViaWhatsApp() {
+        const msg = encodeURIComponent(generateMessage());
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+        closeShareModal();
+    }
+
+    function shareViaEmail() {
+        const missions = [];
+        document.querySelectorAll('input[name="mission"]:checked').forEach(cb => missions.push(cb.value));
+        const mAutre = document.getElementById('mission-autre').value.trim();
+        if (mAutre) missions.push(mAutre);
+        const numOM = document.getElementById('num-om').value.trim();
+
+        const subject = encodeURIComponent(`Ordre de Mission${numOM ? ' ' + numOM : ''} - ${missions.join(', ') || 'CP Moncor'}`);
+        const body = encodeURIComponent(generateMessage());
+        window.open(`mailto:?subject=${subject}&body=${body}`, '_self');
+        closeShareModal();
+    }
+
+    function shareViaSMS() {
+        const msg = encodeURIComponent(generateMessage());
+        window.open(`sms:?&body=${msg}`, '_self');
+        closeShareModal();
+    }
+
+    function copyToClipboard() {
+        const msg = generateMessage();
+        navigator.clipboard.writeText(msg).then(() => {
+            showToast('Ordre de mission copie dans le presse-papier');
+            closeShareModal();
+        }).catch(() => {
+            // Fallback
+            const ta = document.createElement('textarea');
+            ta.value = msg;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('Ordre de mission copie dans le presse-papier');
+            closeShareModal();
+        });
+    }
+
+    function showToast(message) {
+        const t = document.getElementById('toast');
+        t.textContent = message;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function resetForm() {
+        if (!confirm('Effacer tous les champs et creer un nouvel ordre de mission ?')) return;
+        document.querySelectorAll('input[type="text"], input[type="date"], input[type="time"], input[type="tel"], textarea').forEach(el => el.value = '');
+        document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(el => el.checked = false);
+        document.getElementById('tenue-autre-wrap').style.display = 'none';
+        showToast('Formulaire reinitialise');
+    }
+
+    // Close modal on overlay click
+    document.getElementById('share-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeShareModal();
+    });
+
+    // Escape to close modal
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeShareModal();
+    });
+
+    // ===== MAP =====
+    let map = null;
+    let mapMarkers = [];
+    let selectedCategory = 'rassemblement';
+
+    const MARKER_CATEGORIES = {
+        rassemblement: { color: '#2d8a2c', label: 'Point de rassemblement' },
+        surveillance:  { color: '#2c5f8a', label: 'Poste de surveillance' },
+        danger:        { color: '#c41e3a', label: 'Zone danger / interdite' },
+        acces:         { color: '#7b2d8a', label: 'Acces vehicules urgence' },
+        parking:       { color: '#e6b800', label: 'Parking / balisage' },
+        eau:           { color: '#00a8cc', label: 'Point d\'eau' },
+        autre:         { color: '#888888', label: 'Autre' }
+    };
+
+    function createMarkerIcon(color) {
+        return L.divIcon({
+            className: '',
+            html: `<div style="
+                width:24px; height:24px;
+                background:${color};
+                border:3px solid white;
+                border-radius:50%;
+                box-shadow:0 2px 6px rgba(0,0,0,0.4);
+            "></div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            popupAnchor: [0, -14]
+        });
+    }
+
+    function initMap() {
+        if (map) return;
+        map = L.map('map').setView([46.795, 7.143], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        map.on('click', function(e) {
+            addMarker(e.latlng, selectedCategory, '');
+        });
+    }
+
+    function addMarker(latlng, category, note) {
+        const cat = MARKER_CATEGORIES[category];
+        const marker = L.marker(latlng, {
+            icon: createMarkerIcon(cat.color),
+            draggable: true
+        }).addTo(map);
+
+        marker._category = category;
+        marker._note = note;
+
+        updateMarkerPopup(marker);
+        marker.openPopup();
+
+        mapMarkers.push(marker);
+    }
+
+    function updateMarkerPopup(marker) {
+        const cat = MARKER_CATEGORIES[marker._category];
+        const id = mapMarkers.indexOf(marker);
+        const noteVal = marker._note || '';
+
+        marker.bindPopup(`
+            <div class="marker-popup-content">
+                <div class="popup-cat" style="color:${cat.color};">${cat.label}</div>
+                <input type="text" id="note-${id}" value="${noteVal}" placeholder="Ajouter une note...">
+                <div class="popup-actions">
+                    <button class="popup-btn popup-btn-save" onclick="saveMarkerNote(${id})">Enregistrer</button>
+                    <button class="popup-btn popup-btn-delete" onclick="deleteMarker(${id})">Supprimer</button>
+                </div>
+            </div>
+        `, { closeButton: true, minWidth: 200 });
+    }
+
+    function saveMarkerNote(id) {
+        const input = document.getElementById('note-' + id);
+        if (input && mapMarkers[id]) {
+            mapMarkers[id]._note = input.value;
+            mapMarkers[id].closePopup();
+            updateMarkerPopup(mapMarkers[id]);
+            showToast('Note enregistree');
+        }
+    }
+
+    function deleteMarker(id) {
+        if (mapMarkers[id]) {
+            map.removeLayer(mapMarkers[id]);
+            mapMarkers[id] = null;
+            showToast('Marqueur supprime');
+        }
+    }
+
+    function clearAllMarkers() {
+        if (!confirm('Supprimer tous les marqueurs de la carte ?')) return;
+        mapMarkers.forEach(m => { if (m) map.removeLayer(m); });
+        mapMarkers = [];
+        showToast('Tous les marqueurs ont ete supprimes');
+    }
+
+    function selectMarkerType(btn) {
+        document.querySelectorAll('.marker-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedCategory = btn.dataset.cat;
+    }
+
+    function toggleMapView() {
+        const mv = document.getElementById('map-view');
+        const isActive = mv.classList.contains('active');
+        if (isActive) {
+            mv.classList.remove('active');
+        } else {
+            mv.classList.add('active');
+            if (!map) {
+                setTimeout(initMap, 100);
+            } else {
+                setTimeout(() => map.invalidateSize(), 100);
+            }
+        }
+    }
+
+    init();
+</script>
+
+</body>
+</html>
