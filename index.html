@@ -677,6 +677,47 @@
             z-index: 55;
         }
 
+        /* Fix Leaflet divIcon: empecher le style par defaut de cacher le contenu */
+        .leaflet-marker-icon.picto-marker {
+            background: none !important;
+            border: none !important;
+            overflow: visible !important;
+        }
+
+        .picto-marker .marker-circle {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            line-height: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .picto-marker .marker-square {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 13px;
+            font-family: Arial, sans-serif;
+            line-height: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
         .map-bottom-bar {
             background: #2c2c2c;
             padding: 6px 12px;
@@ -1290,44 +1331,34 @@
     // ---- Creer l'icone du marqueur sur la carte ----
     function createMarkerIcon(catKey) {
         const cat = MARKER_CATEGORIES[catKey];
-        if (!cat) return L.divIcon({ className: '', html: '<div style="width:24px;height:24px;background:#888;border:3px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>', iconSize: [24,24], iconAnchor: [12,12], popupAnchor: [0,-14] });
-
-        // Icones SP avec texte (PC, H)
-        if (cat.svg) {
+        if (!cat) {
             return L.divIcon({
-                className: '',
-                html: `<div style="
-                    width:28px; height:28px;
-                    background:${cat.color};
-                    border:3px solid white;
-                    border-radius:4px;
-                    box-shadow:0 2px 6px rgba(0,0,0,0.5);
-                    display:flex; align-items:center; justify-content:center;
-                    color:white; font-weight:900; font-size:12px; font-family:Arial,sans-serif;
-                    line-height:1;
-                ">${cat.svg}</div>`,
-                iconSize: [28, 28],
-                iconAnchor: [14, 14],
-                popupAnchor: [0, -16]
+                className: 'picto-marker',
+                html: '<div class="marker-circle" style="border:2px solid #888;">?</div>',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -18]
             });
         }
 
-        // Icone emoji
+        // Icones SP avec texte (PC, H, P)
+        if (cat.svg) {
+            return L.divIcon({
+                className: 'picto-marker',
+                html: `<div class="marker-square" style="background:${cat.color};border:3px solid white;">${cat.svg}</div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15],
+                popupAnchor: [0, -17]
+            });
+        }
+
+        // Icone emoji dans un cercle blanc
         return L.divIcon({
-            className: '',
-            html: `<div style="
-                width:30px; height:30px;
-                background:white;
-                border:2px solid ${cat.color};
-                border-radius:50%;
-                box-shadow:0 2px 6px rgba(0,0,0,0.4);
-                display:flex; align-items:center; justify-content:center;
-                font-size:18px;
-                line-height:1;
-            ">${cat.icon}</div>`,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15],
-            popupAnchor: [0, -17]
+            className: 'picto-marker',
+            html: `<div class="marker-circle" style="border:3px solid ${cat.color};">${cat.icon}</div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -18]
         });
     }
 
