@@ -407,11 +407,11 @@
         }
 
         @media print {
-            body { background: white; font-size: 9px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body { background: white; font-size: 8px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .app-header, .app-actions, .no-print, .toast, .modal-overlay { display: none !important; }
             .app-body { max-width: none; margin: 0; padding: 0; page-break-after: always; }
-            .card { box-shadow: none; border-radius: 0; margin-bottom: 2px; break-inside: avoid; }
-            .card-body { padding: 3px 0; }
+            .card { box-shadow: none; border-radius: 0; margin-bottom: 1px; break-inside: avoid; }
+            .card-body { padding: 2px 0; }
 
             .print-page {
                 width: 196mm;
@@ -427,20 +427,20 @@
                 justify-content: space-between;
                 align-items: center;
                 border-bottom: 2.5px solid #c41e3a;
-                padding-bottom: 5px;
-                margin-bottom: 6px;
+                padding-bottom: 3px;
+                margin-bottom: 4px;
             }
 
             .print-header-left {
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 6px;
             }
 
-            .print-header img { width: 36px; height: 36px; }
+            .print-header img { width: 30px; height: 30px; }
 
             .print-header h1 {
-                font-size: 13px;
+                font-size: 12px;
                 font-weight: 800;
                 color: #c41e3a;
                 text-transform: uppercase;
@@ -448,19 +448,19 @@
             }
 
             .print-header h2 {
-                font-size: 9px;
+                font-size: 8px;
                 font-weight: 400;
                 color: #555;
             }
 
             .print-header-right {
                 text-align: right;
-                font-size: 8px;
+                font-size: 7px;
                 color: #555;
             }
 
             .print-header-right .mission-num {
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 700;
                 color: #c41e3a;
             }
@@ -470,30 +470,33 @@
 
             /* Print form values */
             .card-header {
-                padding: 3px 8px;
-                font-size: 8px;
+                padding: 2px 6px;
+                font-size: 7px;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
 
-            .form-row { gap: 4px; margin-bottom: 4px; }
+            .form-row { gap: 2px; margin-bottom: 2px; }
 
-            .form-group label { font-size: 6.5px; margin-bottom: 1px; }
+            .form-group label { font-size: 6px; margin-bottom: 0px; }
 
             .form-group input, .form-group select, .form-group textarea {
                 border: none;
                 border-bottom: 1px dotted #ccc;
                 border-radius: 0;
-                padding: 2px 4px;
-                font-size: 9px;
+                padding: 1px 3px;
+                font-size: 8px;
                 background: transparent;
+                line-height: 1.2;
             }
 
-            .option-grid { gap: 3px; }
+            .form-group textarea { min-height: 20px !important; }
+
+            .option-grid { gap: 2px; }
 
             .option-item label {
-                padding: 2px 6px;
-                font-size: 8px;
+                padding: 1px 5px;
+                font-size: 7px;
                 border-width: 1px;
             }
 
@@ -502,49 +505,43 @@
                 print-color-adjust: exact;
             }
 
-            .effectif-table th { font-size: 7px; padding: 2px 4px; }
-            .effectif-table td input { font-size: 8px; padding: 2px 4px; }
-            .effectif-table .row-num { font-size: 7px; }
+            .effectif-table th { font-size: 6px; padding: 1px 3px; }
+            .effectif-table td input { font-size: 7px; padding: 1px 3px; }
+            .effectif-table .row-num { font-size: 6px; padding: 1px; }
+
+            /* Masquer les lignes vides du tableau effectif a l'impression */
+            .effectif-table tr.empty-row { display: none !important; }
 
             .notes-print textarea {
                 border: 1px solid #ddd;
-                font-size: 8px;
-                min-height: 40px;
-                padding: 3px;
+                font-size: 7px;
+                min-height: 20px;
+                padding: 2px;
             }
+
+            #notes { font-size: 7px !important; min-height: 20px !important; padding: 2px !important; }
 
             .signature-area-print {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                gap: 12px;
-                margin-top: 6px;
-                padding-top: 4px;
+                gap: 8px;
+                margin-top: 4px;
+                padding-top: 3px;
                 border-top: 1px solid #ddd;
             }
 
             .sig-block { text-align: center; }
-            .sig-block .sig-label { font-size: 7px; text-transform: uppercase; color: #888; margin-bottom: 18px; display: block; }
-            .sig-block .sig-line { border-top: 1px solid #333; padding-top: 2px; font-size: 7.5px; color: #555; }
+            .sig-block .sig-label { font-size: 6px; text-transform: uppercase; color: #888; margin-bottom: 12px; display: block; }
+            .sig-block .sig-line { border-top: 1px solid #333; padding-top: 2px; font-size: 7px; color: #555; }
 
             .print-footer {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
                 text-align: center;
                 font-size: 6px;
                 color: #bbb;
                 border-top: 1px solid #eee;
                 padding-top: 2px;
+                margin-top: 4px;
             }
-
-            /* Map page */
-            .map-container-print {
-                border: 2px solid #333;
-                height: 218mm;
-            }
-
-            .map-container-print iframe { width: 100%; height: 100%; border: none; }
         }
 
         .print-only { display: none; }
@@ -790,23 +787,35 @@
                 display: block !important;
                 page-break-before: always;
                 width: 196mm;
-                min-height: 280mm;
+                min-height: 270mm;
                 position: relative;
+                padding: 0;
             }
 
-            .print-map-page .print-header { display: flex !important; }
+            .print-map-page .print-header {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 2.5px solid #c41e3a;
+                padding-bottom: 3px;
+                margin-bottom: 4px;
+            }
 
             .print-map-page .map-print-container {
                 border: 2px solid #333;
-                height: 238mm;
+                height: 240mm;
                 margin-top: 4px;
                 overflow: hidden;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .print-map-page .map-print-container img {
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .print-map-legend {
@@ -1598,14 +1607,40 @@
     }
 
     // ===== IMPRESSION AVEC CARTE =====
+
+    // Masquer les lignes vides du tableau effectif pour l'impression
+    function hideEmptyEffectifRows() {
+        document.querySelectorAll('#effectif-body tr').forEach(tr => {
+            const nom = tr.querySelector('[data-field="nom"]').value.trim();
+            const grade = tr.querySelector('[data-field="grade"]').value.trim();
+            const section = tr.querySelector('[data-field="section"]').value.trim();
+            const remarque = tr.querySelector('[data-field="remarque"]').value.trim();
+            if (!nom && !grade && !section && !remarque) {
+                tr.classList.add('empty-row');
+            } else {
+                tr.classList.remove('empty-row');
+            }
+        });
+    }
+
+    function showAllEffectifRows() {
+        document.querySelectorAll('#effectif-body tr').forEach(tr => {
+            tr.classList.remove('empty-row');
+        });
+    }
+
     function prepareAndPrint() {
         const printMapPage = document.getElementById('print-map-page');
         const hasMarkers = mapMarkers.some(m => m !== null);
+
+        // Masquer les lignes vides du tableau effectif
+        hideEmptyEffectifRows();
 
         if (!hasMarkers || !map) {
             // Pas de marqueurs : imprimer sans plan
             printMapPage.classList.remove('ready-to-print');
             window.print();
+            setTimeout(showAllEffectifRows, 1000);
             return;
         }
 
@@ -1616,7 +1651,7 @@
         const mapView = document.getElementById('map-view');
         const wasHidden = !mapView.classList.contains('active');
         if (wasHidden) {
-            mapView.style.cssText = 'display:flex !important; position:fixed; left:-9999px;';
+            mapView.style.cssText = 'display:flex !important; position:fixed; left:-9999px; top:0; width:100vw; height:100vh;';
             map.invalidateSize();
         }
 
@@ -1628,7 +1663,8 @@
                 }
 
                 if (imgData) {
-                    document.getElementById('map-print-img').src = imgData;
+                    var img = document.getElementById('map-print-img');
+                    img.src = imgData;
                     fillPrintMapInfo();
                     buildPrintLegend();
                     printMapPage.classList.add('ready-to-print');
@@ -1636,29 +1672,62 @@
                     printMapPage.classList.remove('ready-to-print');
                 }
 
-                setTimeout(function() {
-                    window.print();
-                    // Apres impression, cacher la page carte
+                // Attendre que l'image soit chargee avant d'imprimer
+                var printImg = document.getElementById('map-print-img');
+                function doPrint() {
                     setTimeout(function() {
-                        printMapPage.classList.remove('ready-to-print');
-                    }, 1000);
-                }, 400);
+                        window.print();
+                        // Apres impression, restaurer
+                        setTimeout(function() {
+                            printMapPage.classList.remove('ready-to-print');
+                            showAllEffectifRows();
+                        }, 1000);
+                    }, 300);
+                }
+
+                if (imgData && !printImg.complete) {
+                    printImg.onload = doPrint;
+                    printImg.onerror = doPrint;
+                } else {
+                    doPrint();
+                }
             });
-        }, wasHidden ? 1000 : 200);
+        }, wasHidden ? 1200 : 300);
     }
 
     function captureMap(callback) {
-        const mapContainer = document.getElementById('map');
+        var mapContainer = document.getElementById('map');
 
-        // Methode 1: html2canvas (plus fiable avec les tuiles)
+        // Methode 1: html2canvas
         if (typeof html2canvas !== 'undefined') {
             html2canvas(mapContainer, {
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: '#f0f0f0',
-                scale: 2
+                backgroundColor: '#e8e8e8',
+                scale: 2,
+                logging: false,
+                imageTimeout: 15000,
+                onclone: function(clonedDoc) {
+                    // S'assurer que les elements de la carte clonee sont visibles
+                    var clonedMap = clonedDoc.getElementById('map');
+                    if (clonedMap) {
+                        clonedMap.style.visibility = 'visible';
+                        clonedMap.style.display = 'block';
+                    }
+                }
             }).then(function(canvas) {
-                callback(canvas.toDataURL('image/png'));
+                try {
+                    var dataUrl = canvas.toDataURL('image/png');
+                    if (dataUrl && dataUrl.length > 100) {
+                        callback(dataUrl);
+                    } else {
+                        console.warn('html2canvas: image vide');
+                        tryLeafletImage(callback);
+                    }
+                } catch(e) {
+                    console.warn('html2canvas toDataURL echoue (CORS):', e);
+                    tryLeafletImage(callback);
+                }
             }).catch(function(err) {
                 console.warn('html2canvas echoue:', err);
                 tryLeafletImage(callback);
@@ -1669,7 +1738,7 @@
     }
 
     function tryLeafletImage(callback) {
-        // Methode 2: leaflet-image
+        // Methode 2: leaflet-image (capture les tuiles mais pas les divIcon/tooltips)
         if (typeof leafletImage !== 'undefined' && map) {
             leafletImage(map, function(err, canvas) {
                 if (err || !canvas) {
@@ -1677,7 +1746,12 @@
                     callback(null);
                     return;
                 }
-                callback(canvas.toDataURL('image/png'));
+                try {
+                    callback(canvas.toDataURL('image/png'));
+                } catch(e) {
+                    console.warn('leaflet-image toDataURL echoue:', e);
+                    callback(null);
+                }
             });
         } else {
             callback(null);
