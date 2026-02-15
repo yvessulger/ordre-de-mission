@@ -564,61 +564,90 @@
 
         .map-view.active { display: flex; }
 
-        .map-toolbar {
-            background: #2c2c2c;
-            padding: 0;
-            border-bottom: 2px solid #c41e3a;
-            z-index: 160;
-            flex-shrink: 0;
-        }
-
-        .map-toolbar-top {
+        /* --- Bandeau rouge identique au header app --- */
+        .map-header {
+            background: #c41e3a;
+            color: white;
+            padding: 8px 16px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.15);
+            justify-content: space-between;
+            z-index: 160;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        .map-toolbar-title {
-            color: white;
-            font-size: 13px;
+        .map-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .map-header-left img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .map-header h1 {
+            font-size: 15px;
             font-weight: 700;
-            margin-right: 6px;
-            white-space: nowrap;
+        }
+
+        .map-header h1 span {
+            font-weight: 300;
+            font-size: 11px;
+            display: block;
+            opacity: 0.8;
+        }
+
+        /* --- Onglets catégories --- */
+        .map-tabs {
+            background: #2c2c2c;
+            display: flex;
+            align-items: center;
+            padding: 0;
+            z-index: 160;
+            flex-shrink: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .cat-tab {
-            padding: 5px 10px;
+            padding: 10px 16px;
             border: none;
-            border-radius: 4px;
-            font-size: 11px;
+            border-bottom: 3px solid transparent;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.5);
             background: transparent;
             transition: all 0.15s;
             white-space: nowrap;
         }
 
-        .cat-tab:hover { color: white; background: rgba(255,255,255,0.15); }
+        .cat-tab:hover { color: white; background: rgba(255,255,255,0.05); }
 
         .cat-tab.active {
             color: white;
-            background: #c41e3a;
-            border-radius: 4px;
+            border-bottom-color: #c41e3a;
+            background: rgba(255,255,255,0.05);
         }
 
+        /* --- Barre de pictos --- */
         .map-toolbar-icons {
+            background: #353535;
             display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 6px 16px;
+            gap: 6px;
+            padding: 8px 16px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: thin;
             scrollbar-color: rgba(255,255,255,0.3) transparent;
-            min-height: 40px;
+            min-height: 46px;
+            flex-shrink: 0;
+            z-index: 160;
         }
 
         .map-toolbar-icons::-webkit-scrollbar {
@@ -631,15 +660,15 @@
         }
 
         .marker-btn {
-            padding: 5px 10px;
+            padding: 6px 12px;
             border: 2px solid transparent;
             border-radius: 6px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             transition: all 0.15s;
             color: white;
             background: rgba(255,255,255,0.1);
@@ -650,18 +679,18 @@
         .marker-btn:hover { background: rgba(255,255,255,0.25); }
 
         .marker-btn.selected {
-            border-color: #fff;
-            background: rgba(255,255,255,0.3);
-            box-shadow: 0 0 8px rgba(255,255,255,0.3);
+            border-color: #c41e3a;
+            background: rgba(196,30,58,0.3);
+            box-shadow: 0 0 8px rgba(196,30,58,0.4);
         }
 
         .marker-icon-preview {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 17px;
             flex-shrink: 0;
             line-height: 1;
         }
@@ -675,20 +704,6 @@
             flex-shrink: 0;
         }
 
-        .map-toolbar .separator {
-            width: 1px;
-            height: 24px;
-            background: rgba(255,255,255,0.2);
-            margin: 0 4px;
-        }
-
-        .toolbar-actions {
-            display: flex;
-            gap: 6px;
-            margin-left: auto;
-            align-items: center;
-        }
-
         #map {
             flex: 1;
             z-index: 55;
@@ -696,7 +711,7 @@
 
         .map-bottom-bar {
             background: #2c2c2c;
-            padding: 6px 16px;
+            padding: 8px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -831,12 +846,15 @@
             .app-header { padding: 10px 14px; }
             .app-body { padding: 12px; }
             .share-methods { grid-template-columns: 1fr; }
-            .map-toolbar-top { padding: 6px 10px; gap: 4px; flex-wrap: wrap; }
-            .map-toolbar-icons { padding: 4px 10px; gap: 4px; }
-            .cat-tab { font-size: 10px; padding: 4px 8px; }
-            .marker-btn { font-size: 9px; padding: 3px 6px; }
+            .map-header { padding: 6px 10px; }
+            .map-header h1 { font-size: 13px; }
+            .map-header-left img { width: 28px; height: 28px; }
+            .map-tabs { overflow-x: auto; }
+            .cat-tab { font-size: 11px; padding: 8px 12px; }
+            .map-toolbar-icons { padding: 6px 10px; gap: 4px; }
+            .marker-btn { font-size: 10px; padding: 4px 8px; }
             .marker-icon-preview { width: 18px; height: 18px; font-size: 14px; }
-            .map-bottom-bar { flex-direction: column; gap: 6px; padding: 8px 10px; }
+            .map-bottom-bar { padding: 6px 10px; }
         }
     </style>
 </head>
@@ -1021,26 +1039,34 @@
 
 <!-- ===== MAP VIEW ===== -->
 <div class="map-view" id="map-view">
-    <div class="map-toolbar">
-        <div class="map-toolbar-top">
-            <span class="map-toolbar-title">Plan du secteur</span>
-            <button class="cat-tab active" onclick="switchCategory('general', this)">G&eacute;n&eacute;ral</button>
-            <button class="cat-tab" onclick="switchCategory('sp', this)">Sapeurs-Pompiers</button>
-            <button class="cat-tab" onclick="switchCategory('route', this)">Signalisation</button>
-            <button class="cat-tab" onclick="switchCategory('danger', this)">Dangers</button>
+    <!-- Bandeau rouge (comme le header principal) -->
+    <div class="map-header">
+        <div class="map-header-left">
+            <img src="logo-moncor.png" alt="Logo">
+            <h1>Plan du secteur <span>Compagnie Moncor</span></h1>
         </div>
-        <div class="map-toolbar-icons" id="marker-palette">
-            <!-- Rempli dynamiquement par JS -->
+        <div style="display:flex; gap:6px;">
+            <button class="btn btn-outline" id="btn-delete-mode" onclick="toggleDeleteMode()" style="font-size:10px; padding:5px 10px;">Supprimer</button>
+            <button class="btn btn-outline" onclick="clearAllMarkers()" style="font-size:10px; padding:5px 10px;">Tout effacer</button>
+            <button class="btn btn-white" onclick="toggleMapView()" style="font-size:11px; padding:6px 14px;">Retour</button>
         </div>
     </div>
+    <!-- Onglets catégories -->
+    <div class="map-tabs">
+        <button class="cat-tab active" onclick="switchCategory('general', this)">G&eacute;n&eacute;ral</button>
+        <button class="cat-tab" onclick="switchCategory('sp', this)">Sapeurs-Pompiers</button>
+        <button class="cat-tab" onclick="switchCategory('route', this)">Signalisation</button>
+        <button class="cat-tab" onclick="switchCategory('danger', this)">Dangers</button>
+    </div>
+    <!-- Barre de pictos -->
+    <div class="map-toolbar-icons" id="marker-palette">
+        <!-- Rempli dynamiquement par JS -->
+    </div>
+    <!-- Carte -->
     <div id="map"></div>
+    <!-- Barre du bas -->
     <div class="map-bottom-bar">
-        <span class="hint" id="map-hint">Cliquer sur la carte pour poser un marqueur. Cliquer sur un marqueur pour le modifier ou supprimer.</span>
-        <div style="display:flex; gap:6px; align-items:center;">
-            <button class="btn btn-outline" id="btn-delete-mode" onclick="toggleDeleteMode()" style="font-size:10px; padding:5px 10px; border-color:rgba(196,30,58,0.6); color:#ff6b7a;">Supprimer</button>
-            <button class="btn btn-outline" onclick="clearAllMarkers()" style="font-size:10px; padding:5px 10px;">Tout effacer</button>
-            <button class="btn btn-white" onclick="toggleMapView()" style="font-size:11px; padding:6px 14px;">Retour au formulaire</button>
-        </div>
+        <span class="hint" id="map-hint">Cliquer sur la carte pour poser un marqueur. Cliquer sur un marqueur pour modifier ou supprimer.</span>
     </div>
 </div>
 
@@ -1536,21 +1562,21 @@
         const mapEl = document.getElementById('map');
 
         if (deleteMode) {
-            btn.style.background = '#c41e3a';
-            btn.style.color = 'white';
-            btn.style.borderColor = '#c41e3a';
-            btn.textContent = 'Mode suppression ON';
+            btn.style.background = 'white';
+            btn.style.color = '#c41e3a';
+            btn.style.borderColor = 'white';
+            btn.textContent = 'SUPPRESSION ON';
             btn.classList.add('delete-mode-active');
-            hint.textContent = 'Cliquer sur un marqueur pour le supprimer. Cliquer "Supprimer" pour d\u00e9sactiver.';
+            hint.textContent = 'MODE SUPPRESSION: Cliquer sur un marqueur pour le supprimer.';
             hint.style.color = '#ff6b7a';
             mapEl.style.cursor = 'crosshair';
         } else {
             btn.style.background = 'transparent';
-            btn.style.color = '#ff6b7a';
-            btn.style.borderColor = 'rgba(196,30,58,0.6)';
+            btn.style.color = 'white';
+            btn.style.borderColor = 'rgba(255,255,255,0.5)';
             btn.textContent = 'Supprimer';
             btn.classList.remove('delete-mode-active');
-            hint.textContent = 'Cliquer sur la carte pour poser un marqueur. Cliquer sur un marqueur pour le modifier ou supprimer.';
+            hint.textContent = 'Cliquer sur la carte pour poser un marqueur. Cliquer sur un marqueur pour modifier ou supprimer.';
             hint.style.color = '#999';
             mapEl.style.cursor = '';
         }
