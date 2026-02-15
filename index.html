@@ -1716,6 +1716,24 @@
             : '';
     }
 
+    // Ajuster la vue de la carte pour afficher tous les marqueurs
+    function fitMapToMarkers() {
+        var activeMarkers = mapMarkers.filter(function(m) { return m !== null; });
+        if (activeMarkers.length === 0 || !map) return;
+
+        if (activeMarkers.length === 1) {
+            // Un seul marqueur : centrer dessus avec un zoom raisonnable
+            map.setView(activeMarkers[0].getLatLng(), 16);
+        } else {
+            // Plusieurs marqueurs : calculer les limites
+            var group = L.featureGroup(activeMarkers);
+            map.fitBounds(group.getBounds(), {
+                padding: [40, 40],
+                maxZoom: 18
+            });
+        }
+    }
+
     function prepareAndPrint() {
         var printMapPage = document.getElementById('print-map-page');
         var hasMarkers = mapMarkers.some(function(m) { return m !== null; });
@@ -1742,6 +1760,9 @@
             mapView.style.cssText = 'display:flex !important; position:fixed; left:-9999px; top:0; width:100vw; height:100vh;';
             map.invalidateSize();
         }
+
+        // Ajuster la carte pour montrer tous les pictos
+        fitMapToMarkers();
 
         setTimeout(function() {
             captureMap(function(imgData) {
@@ -1790,7 +1811,7 @@
                     doPrint();
                 }
             });
-        }, wasHidden ? 1500 : 500);
+        }, wasHidden ? 2000 : 1000);
     }
 
     function captureMap(callback) {
