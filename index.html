@@ -407,11 +407,11 @@
         }
 
         @media print {
-            body { background: white; font-size: 9px; }
+            body { background: white; font-size: 9px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .app-header, .app-actions, .no-print, .toast, .modal-overlay { display: none !important; }
-            .app-body { max-width: none; margin: 0; padding: 0; }
-            .card { box-shadow: none; border-radius: 0; margin-bottom: 0; break-inside: avoid; }
-            .card-body { padding: 4px 0; }
+            .app-body { max-width: none; margin: 0; padding: 0; page-break-after: always; }
+            .card { box-shadow: none; border-radius: 0; margin-bottom: 2px; break-inside: avoid; }
+            .card-body { padding: 3px 0; }
 
             .print-page {
                 width: 196mm;
@@ -564,144 +564,112 @@
 
         .map-view.active { display: flex; }
 
-        /* --- Bandeau rouge identique au header app --- */
-        .map-header {
+        /* --- Bandeau unique : titre + onglets + pictos --- */
+        .map-topbar {
             background: #c41e3a;
-            color: white;
-            padding: 8px 16px;
+            flex-shrink: 0;
+            z-index: 160;
+        }
+
+        .map-topbar-row1 {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            z-index: 160;
-            flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            padding: 6px 12px;
         }
 
-        .map-header-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .map-header-left img {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-
-        .map-header h1 {
-            font-size: 15px;
+        .map-topbar-row1 .title {
+            color: white;
+            font-size: 14px;
             font-weight: 700;
         }
 
-        .map-header h1 span {
-            font-weight: 300;
-            font-size: 11px;
-            display: block;
-            opacity: 0.8;
+        .map-topbar-actions {
+            display: flex;
+            gap: 6px;
         }
 
-        /* --- Onglets catégories --- */
-        .map-tabs {
-            background: #2c2c2c;
+        .map-topbar-actions .btn {
+            font-size: 10px;
+            padding: 4px 10px;
+        }
+
+        /* Onglets dans le bandeau rouge */
+        .map-topbar-tabs {
             display: flex;
-            align-items: center;
-            padding: 0;
-            z-index: 160;
-            flex-shrink: 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 0 12px;
+            gap: 2px;
         }
 
         .cat-tab {
-            padding: 10px 16px;
+            padding: 6px 14px;
             border: none;
-            border-bottom: 3px solid transparent;
-            font-size: 12px;
-            font-weight: 600;
+            border-radius: 6px 6px 0 0;
+            font-size: 11px;
+            font-weight: 700;
             cursor: pointer;
-            color: rgba(255,255,255,0.5);
-            background: transparent;
+            color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.15);
             transition: all 0.15s;
             white-space: nowrap;
         }
 
-        .cat-tab:hover { color: white; background: rgba(255,255,255,0.05); }
+        .cat-tab:hover { color: white; background: rgba(0,0,0,0.25); }
 
         .cat-tab.active {
+            color: #1a1a1a;
+            background: #353535;
             color: white;
-            border-bottom-color: #c41e3a;
-            background: rgba(255,255,255,0.05);
+            font-weight: 800;
         }
 
-        /* --- Barre de pictos --- */
+        /* --- Barre de pictos (sous les onglets) --- */
         .map-toolbar-icons {
             background: #353535;
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
+            gap: 5px;
+            padding: 6px 12px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: thin;
             scrollbar-color: rgba(255,255,255,0.3) transparent;
-            min-height: 46px;
+            height: 42px;
             flex-shrink: 0;
             z-index: 160;
         }
 
-        .map-toolbar-icons::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        .map-toolbar-icons::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
-            border-radius: 2px;
-        }
+        .map-toolbar-icons::-webkit-scrollbar { height: 3px; }
+        .map-toolbar-icons::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 2px; }
 
         .marker-btn {
-            padding: 6px 12px;
+            padding: 4px 10px;
             border: 2px solid transparent;
-            border-radius: 6px;
-            font-size: 12px;
+            border-radius: 5px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            transition: all 0.15s;
+            gap: 5px;
+            transition: all 0.12s;
             color: white;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.08);
             white-space: nowrap;
             flex-shrink: 0;
+            height: 30px;
         }
 
-        .marker-btn:hover { background: rgba(255,255,255,0.25); }
+        .marker-btn:hover { background: rgba(255,255,255,0.2); }
 
         .marker-btn.selected {
             border-color: #c41e3a;
-            background: rgba(196,30,58,0.3);
-            box-shadow: 0 0 8px rgba(196,30,58,0.4);
+            background: rgba(196,30,58,0.35);
         }
 
         .marker-icon-preview {
-            width: 22px;
-            height: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 17px;
-            flex-shrink: 0;
+            font-size: 15px;
             line-height: 1;
-        }
-
-        .marker-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.5);
-            display: inline-block;
-            flex-shrink: 0;
         }
 
         #map {
@@ -711,7 +679,7 @@
 
         .map-bottom-bar {
             background: #2c2c2c;
-            padding: 8px 16px;
+            padding: 6px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -724,101 +692,55 @@
             font-size: 11px;
         }
 
-        /* Delete mode indicator */
-        .delete-mode-active {
-            animation: pulse-red 1s infinite;
-        }
-
+        /* Delete mode */
+        .delete-mode-active { animation: pulse-red 1s infinite; }
         @keyframes pulse-red {
-            0%, 100% { box-shadow: 0 0 4px rgba(196, 30, 58, 0.5); }
-            50% { box-shadow: 0 0 12px rgba(196, 30, 58, 0.9); }
+            0%, 100% { box-shadow: 0 0 4px rgba(196,30,58,0.5); }
+            50% { box-shadow: 0 0 12px rgba(196,30,58,0.9); }
         }
 
-        /* Leaflet popup custom */
-        .marker-popup-content {
-            min-width: 200px;
-        }
-
-        .marker-popup-content .popup-header {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-
-        .marker-popup-content .popup-icon {
-            font-size: 20px;
-        }
-
-        .marker-popup-content .popup-cat {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .marker-popup-content input {
-            width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            padding: 4px 6px;
-            font-size: 12px;
-            font-family: inherit;
-            margin-bottom: 6px;
-        }
-
-        .marker-popup-content .popup-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .marker-popup-content .popup-btn {
-            padding: 4px 10px;
-            border: none;
-            border-radius: 3px;
-            font-size: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            flex: 1;
-            text-align: center;
-        }
-
+        /* Leaflet popup */
+        .marker-popup-content { min-width: 200px; }
+        .marker-popup-content .popup-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .marker-popup-content .popup-icon { font-size: 20px; }
+        .marker-popup-content .popup-cat { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .marker-popup-content input { width: 100%; border: 1px solid #ddd; border-radius: 3px; padding: 4px 6px; font-size: 12px; font-family: inherit; margin-bottom: 6px; }
+        .marker-popup-content .popup-actions { display: flex; gap: 6px; }
+        .marker-popup-content .popup-btn { padding: 4px 10px; border: none; border-radius: 3px; font-size: 10px; font-weight: 600; cursor: pointer; flex: 1; text-align: center; }
         .popup-btn-save { background: #2d8a2c; color: white; }
         .popup-btn-delete { background: #c41e3a; color: white; }
 
-        /* Print map - page imprimee */
-        .print-map-page {
-            display: none;
+        /* === Print map page === */
+        .print-map-page { display: none; }
+
+        .print-map-page.ready-to-print {
+            display: block;
         }
 
         @media print {
             .map-view { display: none !important; }
 
-            .print-map-page {
+            .print-map-page.ready-to-print {
                 display: block !important;
                 page-break-before: always;
                 width: 196mm;
-                height: 283mm;
+                min-height: 280mm;
                 position: relative;
-                overflow: hidden;
             }
 
-            .print-map-page .print-header {
-                display: flex !important;
-            }
+            .print-map-page .print-header { display: flex !important; }
 
             .print-map-page .map-print-container {
                 border: 2px solid #333;
-                height: 240mm;
+                height: 238mm;
                 margin-top: 4px;
-                position: relative;
                 overflow: hidden;
             }
 
             .print-map-page .map-print-container img {
                 width: 100%;
                 height: 100%;
-                object-fit: cover;
+                object-fit: contain;
             }
 
             .print-map-legend {
@@ -829,15 +751,8 @@
                 font-size: 7px;
             }
 
-            .print-map-legend .legend-item {
-                display: flex;
-                align-items: center;
-                gap: 3px;
-            }
-
-            .print-map-legend .legend-icon {
-                font-size: 10px;
-            }
+            .print-map-legend .legend-item { display: flex; align-items: center; gap: 3px; }
+            .print-map-legend .legend-icon { font-size: 10px; }
         }
 
         /* ===== RESPONSIVE ===== */
@@ -846,15 +761,14 @@
             .app-header { padding: 10px 14px; }
             .app-body { padding: 12px; }
             .share-methods { grid-template-columns: 1fr; }
-            .map-header { padding: 6px 10px; }
-            .map-header h1 { font-size: 13px; }
-            .map-header-left img { width: 28px; height: 28px; }
-            .map-tabs { overflow-x: auto; }
-            .cat-tab { font-size: 11px; padding: 8px 12px; }
-            .map-toolbar-icons { padding: 6px 10px; gap: 4px; }
-            .marker-btn { font-size: 10px; padding: 4px 8px; }
-            .marker-icon-preview { width: 18px; height: 18px; font-size: 14px; }
-            .map-bottom-bar { padding: 6px 10px; }
+            .map-topbar-row1 { padding: 4px 8px; }
+            .map-topbar-row1 .title { font-size: 12px; }
+            .map-topbar-tabs { padding: 0 8px; }
+            .cat-tab { font-size: 10px; padding: 5px 10px; }
+            .map-toolbar-icons { padding: 4px 8px; gap: 3px; height: 38px; }
+            .marker-btn { font-size: 9px; padding: 3px 6px; height: 26px; }
+            .marker-icon-preview { font-size: 13px; }
+            .map-bottom-bar { padding: 4px 8px; }
         }
     </style>
 </head>
@@ -1039,34 +953,30 @@
 
 <!-- ===== MAP VIEW ===== -->
 <div class="map-view" id="map-view">
-    <!-- Bandeau rouge (comme le header principal) -->
-    <div class="map-header">
-        <div class="map-header-left">
-            <img src="logo-moncor.png" alt="Logo">
-            <h1>Plan du secteur <span>Compagnie Moncor</span></h1>
+    <!-- Bandeau rouge compact -->
+    <div class="map-topbar">
+        <div class="map-topbar-row1">
+            <span class="title">Plan du secteur</span>
+            <div class="map-topbar-actions">
+                <button class="btn btn-outline" id="btn-delete-mode" onclick="toggleDeleteMode()">Supprimer</button>
+                <button class="btn btn-outline" onclick="clearAllMarkers()">Tout effacer</button>
+                <button class="btn btn-white" onclick="toggleMapView()">Retour</button>
+            </div>
         </div>
-        <div style="display:flex; gap:6px;">
-            <button class="btn btn-outline" id="btn-delete-mode" onclick="toggleDeleteMode()" style="font-size:10px; padding:5px 10px;">Supprimer</button>
-            <button class="btn btn-outline" onclick="clearAllMarkers()" style="font-size:10px; padding:5px 10px;">Tout effacer</button>
-            <button class="btn btn-white" onclick="toggleMapView()" style="font-size:11px; padding:6px 14px;">Retour</button>
+        <div class="map-topbar-tabs">
+            <button class="cat-tab active" onclick="switchCategory('general', this)">G&eacute;n&eacute;ral</button>
+            <button class="cat-tab" onclick="switchCategory('sp', this)">SP</button>
+            <button class="cat-tab" onclick="switchCategory('route', this)">Route</button>
+            <button class="cat-tab" onclick="switchCategory('danger', this)">Danger</button>
         </div>
-    </div>
-    <!-- Onglets catégories -->
-    <div class="map-tabs">
-        <button class="cat-tab active" onclick="switchCategory('general', this)">G&eacute;n&eacute;ral</button>
-        <button class="cat-tab" onclick="switchCategory('sp', this)">Sapeurs-Pompiers</button>
-        <button class="cat-tab" onclick="switchCategory('route', this)">Signalisation</button>
-        <button class="cat-tab" onclick="switchCategory('danger', this)">Dangers</button>
     </div>
     <!-- Barre de pictos -->
-    <div class="map-toolbar-icons" id="marker-palette">
-        <!-- Rempli dynamiquement par JS -->
-    </div>
+    <div class="map-toolbar-icons" id="marker-palette"></div>
     <!-- Carte -->
     <div id="map"></div>
     <!-- Barre du bas -->
     <div class="map-bottom-bar">
-        <span class="hint" id="map-hint">Cliquer sur la carte pour poser un marqueur. Cliquer sur un marqueur pour modifier ou supprimer.</span>
+        <span class="hint" id="map-hint">Cliquer sur la carte pour poser un marqueur.</span>
     </div>
 </div>
 
@@ -1610,50 +1520,52 @@
 
     // ===== IMPRESSION AVEC CARTE =====
     function prepareAndPrint() {
+        const printMapPage = document.getElementById('print-map-page');
         const hasMarkers = mapMarkers.some(m => m !== null);
 
         if (!hasMarkers || !map) {
-            // Pas de marqueurs ou carte jamais ouverte : imprimer sans plan
-            document.getElementById('print-map-page').style.display = 'none';
+            // Pas de marqueurs : imprimer sans plan
+            printMapPage.classList.remove('ready-to-print');
             window.print();
             return;
         }
 
         showToast('Capture du plan en cours...');
-        // Fermer les popups avant capture
         map.closePopup();
 
         // S'assurer que la map-view est visible pour la capture
         const mapView = document.getElementById('map-view');
         const wasHidden = !mapView.classList.contains('active');
         if (wasHidden) {
-            mapView.style.position = 'fixed';
-            mapView.style.left = '-9999px';
-            mapView.style.display = 'flex';
+            mapView.style.cssText = 'display:flex !important; position:fixed; left:-9999px;';
             map.invalidateSize();
         }
 
-        // Petit delai pour que les tuiles se chargent
         setTimeout(function() {
             captureMap(function(imgData) {
+                // Restaurer la carte
                 if (wasHidden) {
-                    mapView.style.display = '';
-                    mapView.style.left = '';
-                    mapView.style.position = '';
+                    mapView.style.cssText = '';
                 }
 
                 if (imgData) {
                     document.getElementById('map-print-img').src = imgData;
                     fillPrintMapInfo();
                     buildPrintLegend();
-                    document.getElementById('print-map-page').style.display = '';
+                    printMapPage.classList.add('ready-to-print');
                 } else {
-                    document.getElementById('print-map-page').style.display = 'none';
+                    printMapPage.classList.remove('ready-to-print');
                 }
 
-                setTimeout(function() { window.print(); }, 300);
+                setTimeout(function() {
+                    window.print();
+                    // Apres impression, cacher la page carte
+                    setTimeout(function() {
+                        printMapPage.classList.remove('ready-to-print');
+                    }, 1000);
+                }, 400);
             });
-        }, wasHidden ? 800 : 100);
+        }, wasHidden ? 1000 : 200);
     }
 
     function captureMap(callback) {
