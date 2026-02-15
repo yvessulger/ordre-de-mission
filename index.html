@@ -409,9 +409,25 @@
         @media print {
             body { background: white; font-size: 8px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .app-header, .app-actions, .no-print, .toast, .modal-overlay { display: none !important; }
-            .app-body { max-width: none; margin: 0; padding: 0; page-break-after: always; }
+            .app-body { max-width: none; margin: 0; padding: 0; padding-top: 0; page-break-after: always; }
             .card { box-shadow: none; border-radius: 0; margin-bottom: 1px; break-inside: avoid; }
             .card-body { padding: 2px 0; }
+
+            /* En-tete d'impression page 1 */
+            .print-form-header {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 2.5px solid #c41e3a;
+                padding-bottom: 3px;
+                margin-bottom: 4px;
+            }
+            .print-form-header img { width: 30px; height: 30px; border-radius: 50%; }
+            .print-form-header .pfh-left { display: flex; align-items: center; gap: 6px; }
+            .print-form-header .pfh-title { font-size: 12px; font-weight: 800; color: #c41e3a; text-transform: uppercase; line-height: 1.1; }
+            .print-form-header .pfh-sub { font-size: 8px; font-weight: 400; color: #555; display: block; }
+            .print-form-header .pfh-right { text-align: right; font-size: 7px; color: #555; }
+            .print-form-header .pfh-num { font-size: 10px; font-weight: 700; color: #c41e3a; }
 
             .print-page {
                 width: 196mm;
@@ -865,6 +881,22 @@
 
 <!-- ===== MAIN FORM ===== -->
 <div class="app-body">
+
+    <!-- EN-TETE IMPRESSION (visible uniquement en print) -->
+    <div class="print-form-header print-only" id="print-form-header">
+        <div class="pfh-left">
+            <img src="logo-moncor.png" alt="Logo">
+            <div>
+                <div class="pfh-title">Ordre de Mission</div>
+                <span class="pfh-sub">Compagnie Moncor &mdash; Bataillon Sarine</span>
+            </div>
+        </div>
+        <div class="pfh-right">
+            <div class="pfh-num" id="pfh-num"></div>
+            <div id="pfh-date"></div>
+            <div id="pfh-lieu"></div>
+        </div>
+    </div>
 
     <!-- TYPE DE MISSION -->
     <div class="card">
@@ -1629,12 +1661,25 @@
         });
     }
 
-    function prepareAndPrint() {
-        const printMapPage = document.getElementById('print-map-page');
-        const hasMarkers = mapMarkers.some(m => m !== null);
+    // Remplir l'en-tete d'impression page 1
+    function fillPrintFormHeader() {
+        var numOM = document.getElementById('num-om').value.trim();
+        var lieu = document.getElementById('lieu').value.trim();
+        var dateMission = document.getElementById('date-mission').value;
+        document.getElementById('pfh-num').textContent = numOM || '';
+        document.getElementById('pfh-lieu').textContent = lieu || '';
+        document.getElementById('pfh-date').textContent = dateMission
+            ? new Date(dateMission + 'T00:00').toLocaleDateString('fr-CH', {day:'numeric', month:'long', year:'numeric'})
+            : '';
+    }
 
-        // Masquer les lignes vides du tableau effectif
+    function prepareAndPrint() {
+        var printMapPage = document.getElementById('print-map-page');
+        var hasMarkers = mapMarkers.some(function(m) { return m !== null; });
+
+        // Preparer la page 1
         hideEmptyEffectifRows();
+        fillPrintFormHeader();
 
         if (!hasMarkers || !map) {
             // Pas de marqueurs : imprimer sans plan
@@ -1648,8 +1693,8 @@
         map.closePopup();
 
         // S'assurer que la map-view est visible pour la capture
-        const mapView = document.getElementById('map-view');
-        const wasHidden = !mapView.classList.contains('active');
+        var mapView = document.getElementById('map-view');
+        var wasHidden = !mapView.classList.contains('active');
         if (wasHidden) {
             mapView.style.cssText = 'display:flex !important; position:fixed; left:-9999px; top:0; width:100vw; height:100vh;';
             map.invalidateSize();
@@ -1662,14 +1707,19 @@
                     mapView.style.cssText = '';
                 }
 
+                fillPrintMapInfo();
+                buildPrintLegend();
+                var img = document.getElementById('map-print-img');
                 if (imgData) {
-                    var img = document.getElementById('map-print-img');
                     img.src = imgData;
-                    fillPrintMapInfo();
-                    buildPrintLegend();
+                    img.style.display = 'block';
                     printMapPage.classList.add('ready-to-print');
                 } else {
-                    printMapPage.classList.remove('ready-to-print');
+                    // Fallback : afficher la page avec un message
+                    img.style.display = 'none';
+                    var container = document.getElementById('map-print-container');
+                    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:14px;color:#666;text-align:center;padding:40px;">La capture de la carte n\'a pas pu \u00eatre g\u00e9n\u00e9r\u00e9e.<br>Veuillez ouvrir le plan du secteur avant d\'imprimer<br>pour que la capture fonctionne correctement.</div>';
+                    printMapPage.classList.add('ready-to-print');
                 }
 
                 // Attendre que l'image soit chargee avant d'imprimer
@@ -1681,8 +1731,13 @@
                         setTimeout(function() {
                             printMapPage.classList.remove('ready-to-print');
                             showAllEffectifRows();
-                        }, 1000);
-                    }, 300);
+                            // Restaurer le conteneur carte pour les prochaines impressions
+                            var cont = document.getElementById('map-print-container');
+                            if (!cont.querySelector('img')) {
+                                cont.innerHTML = '<img id="map-print-img" src="" alt="Plan du secteur">';
+                            }
+                        }, 1500);
+                    }, 500);
                 }
 
                 if (imgData && !printImg.complete) {
@@ -1692,53 +1747,73 @@
                     doPrint();
                 }
             });
-        }, wasHidden ? 1200 : 300);
+        }, wasHidden ? 1500 : 500);
     }
 
     function captureMap(callback) {
         var mapContainer = document.getElementById('map');
 
-        // Methode 1: html2canvas
+        // Essayer html2canvas d'abord
         if (typeof html2canvas !== 'undefined') {
+            // Tenter sans allowTaint d'abord (CORS propre)
             html2canvas(mapContainer, {
                 useCORS: true,
-                allowTaint: true,
+                allowTaint: false,
                 backgroundColor: '#e8e8e8',
                 scale: 2,
                 logging: false,
-                imageTimeout: 15000,
-                onclone: function(clonedDoc) {
-                    // S'assurer que les elements de la carte clonee sont visibles
-                    var clonedMap = clonedDoc.getElementById('map');
-                    if (clonedMap) {
-                        clonedMap.style.visibility = 'visible';
-                        clonedMap.style.display = 'block';
-                    }
-                }
+                imageTimeout: 15000
             }).then(function(canvas) {
                 try {
                     var dataUrl = canvas.toDataURL('image/png');
-                    if (dataUrl && dataUrl.length > 100) {
+                    if (dataUrl && dataUrl.length > 1000) {
+                        console.log('html2canvas (CORS) OK, taille:', dataUrl.length);
                         callback(dataUrl);
                     } else {
-                        console.warn('html2canvas: image vide');
-                        tryLeafletImage(callback);
+                        throw new Error('image trop petite');
                     }
                 } catch(e) {
-                    console.warn('html2canvas toDataURL echoue (CORS):', e);
-                    tryLeafletImage(callback);
+                    console.warn('html2canvas CORS echoue, tentative allowTaint:', e.message);
+                    // Retenter avec allowTaint (peut donner une image "tainted" mais visible)
+                    captureMapTainted(mapContainer, callback);
                 }
             }).catch(function(err) {
                 console.warn('html2canvas echoue:', err);
-                tryLeafletImage(callback);
+                captureMapTainted(mapContainer, callback);
             });
         } else {
             tryLeafletImage(callback);
         }
     }
 
+    function captureMapTainted(mapContainer, callback) {
+        html2canvas(mapContainer, {
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#e8e8e8',
+            scale: 2,
+            logging: false,
+            imageTimeout: 15000
+        }).then(function(canvas) {
+            try {
+                var dataUrl = canvas.toDataURL('image/png');
+                if (dataUrl && dataUrl.length > 1000) {
+                    console.log('html2canvas (tainted) OK, taille:', dataUrl.length);
+                    callback(dataUrl);
+                } else {
+                    throw new Error('image trop petite');
+                }
+            } catch(e) {
+                console.warn('html2canvas tainted toDataURL echoue:', e.message);
+                tryLeafletImage(callback);
+            }
+        }).catch(function(err) {
+            console.warn('html2canvas tainted echoue:', err);
+            tryLeafletImage(callback);
+        });
+    }
+
     function tryLeafletImage(callback) {
-        // Methode 2: leaflet-image (capture les tuiles mais pas les divIcon/tooltips)
         if (typeof leafletImage !== 'undefined' && map) {
             leafletImage(map, function(err, canvas) {
                 if (err || !canvas) {
@@ -1747,7 +1822,9 @@
                     return;
                 }
                 try {
-                    callback(canvas.toDataURL('image/png'));
+                    var dataUrl = canvas.toDataURL('image/png');
+                    console.log('leaflet-image OK, taille:', dataUrl.length);
+                    callback(dataUrl);
                 } catch(e) {
                     console.warn('leaflet-image toDataURL echoue:', e);
                     callback(null);
