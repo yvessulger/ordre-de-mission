@@ -557,7 +557,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            z-index: 50;
+            z-index: 150;
             background: #1a1a1a;
             flex-direction: column;
         }
@@ -568,29 +568,30 @@
             background: #2c2c2c;
             padding: 0;
             border-bottom: 2px solid #c41e3a;
-            z-index: 60;
+            z-index: 160;
+            flex-shrink: 0;
         }
 
         .map-toolbar-top {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            gap: 6px;
+            padding: 6px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
         }
 
         .map-toolbar-title {
             color: white;
             font-size: 13px;
             font-weight: 700;
-            margin-right: 8px;
+            margin-right: 6px;
             white-space: nowrap;
         }
 
         .cat-tab {
-            padding: 6px 12px;
+            padding: 5px 10px;
             border: none;
-            border-radius: 4px 4px 0 0;
+            border-radius: 4px;
             font-size: 11px;
             font-weight: 600;
             cursor: pointer;
@@ -600,50 +601,63 @@
             white-space: nowrap;
         }
 
-        .cat-tab:hover { color: white; background: rgba(255,255,255,0.1); }
+        .cat-tab:hover { color: white; background: rgba(255,255,255,0.15); }
 
         .cat-tab.active {
             color: white;
-            background: rgba(255,255,255,0.15);
-            border-bottom: 2px solid #c41e3a;
+            background: #c41e3a;
+            border-radius: 4px;
         }
 
         .map-toolbar-icons {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             padding: 6px 16px;
-            flex-wrap: wrap;
-            min-height: 44px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.3) transparent;
+            min-height: 40px;
+        }
+
+        .map-toolbar-icons::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .map-toolbar-icons::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
         }
 
         .marker-btn {
-            padding: 4px 8px;
+            padding: 5px 10px;
             border: 2px solid transparent;
-            border-radius: 4px;
-            font-size: 10px;
+            border-radius: 6px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 5px;
             transition: all 0.15s;
             color: white;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.1);
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
-        .marker-btn:hover { background: rgba(255,255,255,0.2); }
+        .marker-btn:hover { background: rgba(255,255,255,0.25); }
 
         .marker-btn.selected {
             border-color: #fff;
-            background: rgba(255,255,255,0.25);
-            box-shadow: 0 0 8px rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.3);
+            box-shadow: 0 0 8px rgba(255,255,255,0.3);
         }
 
         .marker-icon-preview {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -686,7 +700,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            z-index: 60;
+            z-index: 160;
+            flex-shrink: 0;
         }
 
         .map-bottom-bar .hint {
