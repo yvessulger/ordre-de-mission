@@ -677,7 +677,11 @@
             z-index: 55;
         }
 
-        /* Fix Leaflet divIcon: empecher le style par defaut de cacher le contenu */
+        /* Leaflet popups au-dessus de tout */
+        .leaflet-popup-pane { z-index: 800 !important; }
+        .leaflet-popup { z-index: 800 !important; }
+
+        /* Fix Leaflet divIcon */
         .leaflet-marker-icon.picto-marker {
             background: none !important;
             border: none !important;
@@ -716,6 +720,25 @@
             position: absolute;
             top: 0;
             left: 0;
+        }
+
+        /* Etiquette note permanente sur le marqueur */
+        .marker-label {
+            position: absolute;
+            left: 36px;
+            top: 4px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            pointer-events: none;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
         }
 
         .map-bottom-bar {
@@ -1329,12 +1352,14 @@
     };
 
     // ---- Creer l'icone du marqueur sur la carte ----
-    function createMarkerIcon(catKey) {
+    function createMarkerIcon(catKey, noteText) {
         const cat = MARKER_CATEGORIES[catKey];
+        const labelHtml = noteText ? `<div class="marker-label">${noteText}</div>` : '';
+
         if (!cat) {
             return L.divIcon({
                 className: 'picto-marker',
-                html: '<div class="marker-circle" style="border:2px solid #888;">?</div>',
+                html: '<div class="marker-circle" style="border:2px solid #888;">?</div>' + labelHtml,
                 iconSize: [32, 32],
                 iconAnchor: [16, 16],
                 popupAnchor: [0, -18]
@@ -1345,7 +1370,7 @@
         if (cat.svg) {
             return L.divIcon({
                 className: 'picto-marker',
-                html: `<div class="marker-square" style="background:${cat.color};border:3px solid white;">${cat.svg}</div>`,
+                html: `<div class="marker-square" style="background:${cat.color};border:3px solid white;">${cat.svg}</div>${labelHtml}`,
                 iconSize: [30, 30],
                 iconAnchor: [15, 15],
                 popupAnchor: [0, -17]
@@ -1355,7 +1380,7 @@
         // Icone emoji dans un cercle blanc
         return L.divIcon({
             className: 'picto-marker',
-            html: `<div class="marker-circle" style="border:3px solid ${cat.color};">${cat.icon}</div>`,
+            html: `<div class="marker-circle" style="border:3px solid ${cat.color};">${cat.icon}</div>${labelHtml}`,
             iconSize: [32, 32],
             iconAnchor: [16, 16],
             popupAnchor: [0, -18]
@@ -1435,7 +1460,7 @@
 
         const id = mapMarkers.length;
         const marker = L.marker(latlng, {
-            icon: createMarkerIcon(category),
+            icon: createMarkerIcon(category, note || ''),
             draggable: true
         }).addTo(map);
 
@@ -1481,6 +1506,8 @@
         const input = document.getElementById('note-' + id);
         if (input && mapMarkers[id]) {
             mapMarkers[id]._note = input.value;
+            // Mettre a jour l'icone avec l'etiquette de la note
+            mapMarkers[id].setIcon(createMarkerIcon(mapMarkers[id]._category, input.value));
             mapMarkers[id].closePopup();
             updateMarkerPopup(mapMarkers[id], id);
             showToast('Note enregistr\u00e9e');
